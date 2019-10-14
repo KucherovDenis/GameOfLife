@@ -24,7 +24,7 @@ public class GameOfLife {
     private static int[][] neighbors;
 
     //Массив с координатами соседей
-    private static int[][] neighborsXY = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}};
+    private static final int[][] neighborsXY = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}};
 
     public static void main(String[] args) {
         //значения по умолчанию
