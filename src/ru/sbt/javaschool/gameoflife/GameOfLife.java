@@ -29,7 +29,7 @@ public class GameOfLife {
     public static void main(String[] args) {
         //значения по умолчанию
         int size = 10;
-        int count = 1000;
+        int count = 100;
 
         if (args.length == 2) {
             size = Integer.parseInt(args[0]);
@@ -92,9 +92,9 @@ public class GameOfLife {
         for (int i = 0; i < sizeUniverse; i++) {
             for (int j = 0; j < sizeUniverse; j++) {
                 int countNeighbors = 0;
-                for (int k = 0; k < neighborsXY.length; k++) {
-                    int x = i + neighborsXY[k][0];
-                    int y = j + neighborsXY[k][1];
+                for(int[] k: neighborsXY){
+                    int x = i + k[0];
+                    int y = j + k[1];
 
                     if (x < 0) x = sizeUniverse - 1;
                     if (y < 0) y = sizeUniverse - 1;
