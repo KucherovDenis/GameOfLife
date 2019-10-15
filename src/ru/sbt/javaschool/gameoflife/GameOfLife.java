@@ -2,8 +2,9 @@ package ru.sbt.javaschool.gameoflife;
 
 public class GameOfLife {
 
-    private static final char LIFE = '*';
+    private static final char ALIVE = '*';
     private static final char DEAD = ' ';
+    private static final char SEPARATOR = '|';
 
     //Размер вселенной
     private static int sizeUniverse;
@@ -15,16 +16,16 @@ public class GameOfLife {
     private static int currentGeneration = 0;
 
     //Массив "вселенная" клеток. Содержит * если клетка жива.
-    private static char[][] universe;
+    private static boolean[][] universe;
 
     //предыдущее состояние вселенной
-    private static char[][] prevUniverse = null;
+    private static boolean[][] prevUniverse = null;
 
     //Массив содержит число соседей для каждой клетки.
     private static int[][] neighbors;
 
     //Массив с координатами соседей
-    private static final int[][] neighborsXY = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}};
+    private static final int[][] neighborsXY = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
 
     public static void main(String[] args) {
         //значения по умолчанию
@@ -48,7 +49,7 @@ public class GameOfLife {
         sizeUniverse = size;
         allGenerations = count;
 
-        universe = new char[sizeUniverse][sizeUniverse];
+        universe = new boolean[sizeUniverse][sizeUniverse];
         neighbors = new int[sizeUniverse][sizeUniverse];
     }
 
@@ -69,7 +70,7 @@ public class GameOfLife {
     //Сохранение состояния вселенной.
     private static void saveUniverse() {
         if (prevUniverse == null) {
-            prevUniverse = new char[sizeUniverse][sizeUniverse];
+            prevUniverse = new boolean[sizeUniverse][sizeUniverse];
         } else {
             for (int i = 0; i < sizeUniverse; i++) {
                 System.arraycopy(universe[i], 0, prevUniverse[i], 0, universe[i].length);
@@ -80,29 +81,31 @@ public class GameOfLife {
 
     //Создание первого поколения случайным образом.
     private static void firstGeneration() {
+        currentGeneration++;
         for (int i = 0; i < sizeUniverse; i++) {
             for (int j = 0; j < sizeUniverse; j++) {
-                universe[i][j] = Math.random() > 0.75 ? LIFE : DEAD;
+                universe[i][j] = Math.random() > 0.75;
             }
         }
     }
 
-    //Подсчет соседий
+    //Подсчет соседних живых клеток (соседей).
     private static void countingNeighbors() {
         for (int i = 0; i < sizeUniverse; i++) {
             for (int j = 0; j < sizeUniverse; j++) {
                 int countNeighbors = 0;
+
                 for(int[] k: neighborsXY){
                     int x = i + k[0];
                     int y = j + k[1];
 
                     if (x < 0) x = sizeUniverse - 1;
+                    else if (x >= sizeUniverse) x = 0;
+
                     if (y < 0) y = sizeUniverse - 1;
+                    else if (y >= sizeUniverse) y = 0;
 
-                    if (x >= sizeUniverse) x = 0;
-                    if (y >= sizeUniverse) y = 0;
-
-                    if (universe[x][y] == LIFE)
+                    if (universe[x][y])
                         countNeighbors++;
                 }
 
@@ -113,15 +116,13 @@ public class GameOfLife {
 
     //Следующее поколение вселенной
     private static void nextGeneration() {
+        currentGeneration++;
         countingNeighbors();
 
         for (int i = 0; i < sizeUniverse; i++) {
             for (int j = 0; j < sizeUniverse; j++) {
-                if (universe[i][j] == DEAD && neighbors[i][j] == 3) universe[i][j] = LIFE;
-                else if (universe[i][j] == LIFE &&
-                        (neighbors[i][j] == 2 || neighbors[i][j] == 3)) {
-                    universe[i][j] = LIFE;
-                } else universe[i][j] = DEAD;
+                universe[i][j] = (neighbors[i][j] == 3) || universe[i][j];
+                universe[i][j] = ((neighbors[i][j] >= 2) && (neighbors[i][j] <= 3)) && universe[i][j];
             }
         }
     }
@@ -138,7 +139,7 @@ public class GameOfLife {
         end:
         for (int i = 0; i < sizeUniverse; i++) {
             for (int j = 0; j < sizeUniverse; j++) {
-                if (universe[i][j] == LIFE) {
+                if (universe[i][j]) {
                     result = false;
                     break end;
                 }
@@ -172,16 +173,22 @@ public class GameOfLife {
 
     //Вывод вселенной на экран
     private static void showUniverse() {
-        currentGeneration++;
         System.out.println(String.format("Generation of the universe №%d: ", currentGeneration));
-        StringBuilder line = new StringBuilder();
+        StringBuilder out = new StringBuilder();
 
         for (int i = 0; i < sizeUniverse; i++) {
-            line.setLength(0);
+            out.append(SEPARATOR);
+
             for (int j = 0; j < sizeUniverse; j++) {
-                line.append(universe[i][j]).append('|');
+                if (universe[i][j]) out.append(ALIVE);
+                else out.append(DEAD);
+
+                out.append(SEPARATOR);
             }
-            System.out.println(line.toString());
+
+            out.append('\n');
         }
+
+        System.out.println(out.toString());
     }
 }
